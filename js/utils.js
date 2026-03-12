@@ -19,3 +19,22 @@ export function showPop(x, y, parent) {
   parent.appendChild(d);
   setTimeout(() => d.remove(), 600);
 }
+
+export function showScoreText(x, y, val, parent) {
+  const d = document.createElement("div");
+  d.className = "score-text";
+  d.textContent = `+${val}`;
+  d.style.left = x + "px";
+  d.style.top = (y - 20) + "px";
+  parent.appendChild(d);
+  setTimeout(() => d.remove(), 800);
+}
+
+export function getSeededRandom(seed) {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}

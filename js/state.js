@@ -1,27 +1,39 @@
-export let state = {
-  deck: JSON.parse(localStorage.getItem("deckData") || "[]"),
+export const gameState = {
+  // Persistence-backed data
+  cards: JSON.parse(localStorage.getItem("deckData") || "[]"),
   highScore: Number(localStorage.getItem("highScore") || 0),
+
+  // Session data
+  score: 0,
   combo: 0,
+  multiplier: 1,
+  lastFamily: null,
+  popCount: 0,
   itemChain: 0,
   typeChain: 0,
   lastItem: null,
   lastType: null,
-  floats: [],
-  paused: true
+  
+  // Engine state
+  floaties: [],
+  paused: true,
+  gameMode: "default",
+  spawnSeed: Math.random()
 };
 
-export function saveDeck() {
-  localStorage.setItem("deckData", JSON.stringify(state.deck));
-}
-
-export function saveHighScore() {
-  localStorage.setItem("highScore", state.highScore);
+export function persistData() {
+  localStorage.setItem("deckData", JSON.stringify(gameState.cards));
+  localStorage.setItem("highScore", gameState.highScore);
 }
 
 export function resetSession() {
-  state.combo = 0;
-  state.itemChain = 0;
-  state.typeChain = 0;
-  state.lastItem = null;
-  state.lastType = null;
+  gameState.score = 0;
+  gameState.combo = 0;
+  gameState.multiplier = 1;
+  gameState.lastFamily = null;
+  gameState.popCount = 0;
+  gameState.itemChain = 0;
+  gameState.typeChain = 0;
+  gameState.lastItem = null;
+  gameState.lastType = null;
 }

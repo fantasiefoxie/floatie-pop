@@ -47,3 +47,114 @@
   25% { opacity: 1; transform: scale(1.5); }
   100% { opacity: 0; transform: translateY(-55px) scale(.7); }
 }
+
+@keyframes ripple {
+  0% { transform: scale(1); filter: blur(0); }
+  50% { transform: scale(1.02); filter: blur(2px); }
+  100% { transform: scale(1); filter: blur(0); }
+}
+
+.ripple-active {
+  animation: ripple 0.8s ease-in-out;
+  pointer-events: none;
+}
+
+#playArea.ripple-active * {
+  pointer-events: auto;
+}
+
+#cardTray {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  background: rgba(43, 15, 26, 0.8);
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 122, 162, 0.3);
+  z-index: 100;
+}
+
+.tray-card {
+  width: 50px;
+  height: 70px;
+  background: #4a1c2c;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: #ffb3c6;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s;
+}
+
+.tray-card .icon { font-size: 16px; margin-bottom: 2px; }
+
+/* Rare Floatie Styles */
+.float.rarity-rainbow {
+  filter: drop-shadow(0 0 12px #fff) brightness(1.2);
+  animation: rainbow-glow 2s infinite linear;
+}
+
+@keyframes rainbow-glow {
+  0% { color: #ff0000; }
+  20% { color: #ffff00; }
+  40% { color: #00ff00; }
+  60% { color: #00ffff; }
+  80% { color: #0000ff; }
+  100% { color: #ff00ff; }
+}
+
+.float.rarity-magnet {
+  filter: drop-shadow(0 0 10px #00e5ff);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 50%;
+}
+
+.float.rarity-bomb {
+  filter: drop-shadow(0 0 10px #ff3d00);
+  animation: pulse-red 1s infinite alternate;
+}
+
+@keyframes pulse-red {
+  from { transform: scale(1); filter: drop-shadow(0 0 10px #ff3d00); }
+  to { transform: scale(1.1); filter: drop-shadow(0 0 20px #ff3d00); }
+}
+
+.float.rarity-anchor {
+  filter: drop-shadow(0 0 15px #37474f) brightness(0.7);
+  font-weight: 900;
+}
+
+.float.rarity-parasite {
+  filter: drop-shadow(0 0 12px #7b1fa2);
+  animation: parasite-pulse 2s infinite ease-in-out;
+}
+
+@keyframes parasite-pulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 12px #7b1fa2); }
+  50% { transform: scale(1.15); filter: drop-shadow(0 0 25px #ea80fc); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 12px #7b1fa2); }
+}
+
+.score-text {
+  position: absolute;
+  color: #fff;
+  font-weight: 900;
+  font-size: 20px;
+  text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+  pointer-events: none;
+  animation: score-float 0.8s ease-out forwards;
+  z-index: 1000;
+}
+
+@keyframes score-float {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-50px); opacity: 0; }
+}

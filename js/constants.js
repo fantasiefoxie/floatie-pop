@@ -2,7 +2,24 @@ export const FOOD = ["🍫", "🧇", "🍝", "🍕"];
 export const FLOWERS = ["🌹", "🌻", "💋"];
 export const HUMAN = ["👩", "👨", "🧑", "👧", "👦"];
 export const ANIMALS = ["😺", "🦊", "🐢", "🐱", "🧸"];
-export const ALL = [...FOOD, ...FLOWERS, ...HUMAN, ...ANIMALS];
+export const RAINBOW = ["🌈"];
+export const MAGNET = ["🧲"];
+export const BOMB = ["💣"];
+export const CORAL = ["🪸"];
+export const JELLY = ["🪼"];
+export const PARASITE = ["👾"];
+export const ANCHOR = ["⚓"];
+
+export const ALL = [...FOOD, ...FLOWERS, ...HUMAN, ...ANIMALS, ...CORAL, ...JELLY];
+
+export const SPAWN_RATES = {
+  NORMAL: 0.85,
+  RAINBOW: 0.05,
+  MAGNET: 0.03,
+  BOMB: 0.02,
+  PARASITE: 0.03,
+  ANCHOR: 0.02
+};
 
 export const BASE_CARDS = [
   ["Central Perk Hearts", "Love"], ["Smelly Cat Serenade", "Chaos"], ["Blue French Horn", "Love"],
