@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cutiepie ❤️ — Velvet Pop</title>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{--d1:#14080d;--d2:#2b0f1a;--d3:#0b0b10;}
+*{box-sizing:border-box}
+body{
+ margin:0;height:100vh;overflow:hidden;
+ background:linear-gradient(135deg,var(--d1),var(--d2),var(--d3));
+ color:white;font-family:Inter,system-ui;
+}
+#intro{position:absolute;inset:0;display:flex;justify-content:center;align-items:center}
+.heart{font-size:92px;cursor:pointer;animation:pulse 2s infinite}
+@keyframes pulse{50%{transform:scale(1.15)}}
+
+#question{
+ position:absolute;inset:0;display:none;
+ flex-direction:column;justify-content:center;align-items:center;
+ text-align:center;
+}
+.buttons{position:relative;width:300px;height:120px}
+button{border:none;border-radius:30px;padding:14px 28px}
+#yes{background:linear-gradient(135deg,#ff7aa2,#ff9fbf);position:absolute;left:20px}
+#no{background:transparent;color:#ffb3c6;border:1px solid rgba(255,255,255,.25);position:absolute;left:160px}
+#tease{margin-top:12px;color:#ffb3c6;height:24px}
+
+#celebrate{position:absolute;inset:0;display:none}
+#message{
+ position:absolute;top:24px;width:100%;
+ text-align:center;font-size:18px;
+ transition:opacity .8s;
+}
+#stats{
+ position:absolute;top:24px;width:100%;
+ text-align:center;font-size:14px;
+ opacity:0;transition:opacity .8s;
+}
+#combo{position:absolute;bottom:18px;right:18px;font-size:13px}
+
+#deckBtn{
+ position:absolute;bottom:18px;left:18px;
+ padding:6px 10px;border-radius:10px;
+ background:rgba(255,255,255,.1);cursor:pointer;
+}
+#playArea{
+ position:absolute;
+ top:90px;bottom:70px;left:18px;right:18px;
+ overflow:hidden;
+}
+
+/* FLOATS */
+.float{position:absolute;font-size:28px;cursor:pointer;transition:transform .25s}
+.float.nickname{font-family:'Comfortaa';font-size:16px}
+.float.active{
+ filter:drop-shadow(0 0 16px #ff7aa2);
+ transform:scale(1.5);
+}
+.float.active::after{
+ content:"";
+ position:absolute;
+ inset:-6px;
+ border-radius:50%;
+ border:2px solid rgba(255,255,255,.4);
+ box-shadow:0 0 14px rgba(255,150,220,.7);
+}
+.float.passive{
+ filter:blur(.8px) brightness(.85);
+ transform:scale(.8);
+}
+
+/* POP */
+.candy{
+ position:absolute;font-size:18px;font-weight:900;
+ text-shadow:0 0 16px #ff4d88;
+ animation:candy .6s forwards;
+ pointer-events:none;
+}
+@keyframes candy{
+ 0%{opacity:0;transform:scale(.3)}
+ 25%{opacity:1;transform:scale(1.5)}
+ 100%{opacity:0;transform:translateY(-55px) scale(.7)}
+}
+
+/* CARD REVEAL */
+#cardReveal{
+ position:absolute;
+ left:50%;bottom:-260px;
+ transform:translateX(-50%);
+ width:250px;
+ background:#2a0f1a;
+ border-radius:14px;
+ padding:12px;
+ text-align:center;
+ transition:bottom .6s ease;
+ z-index:700;
+ box-shadow:0 0 24px rgba(255,120,180,.5);
+ pointer-events:none;
+}
+#cardReveal.show{bottom:110px}
+
+/* DECK */
+#deckPanel{
+ position:absolute;inset:0;
+ background:rgba(10,0,12,.96);
+ display:none;flex-direction:column;
+ padding:20px;overflow-y:auto;z-index:999;
+}
+.cardGrid{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:12px;
+ padding-bottom:120px;
+}
+.card{
+ background:#2a0f1a;
+ border-radius:12px;
+ padding:8px;
+ font-size:10px;
+ aspect-ratio:3/4;
+}
+.card .stamp{font-size:9px;opacity:.7}
+#deckBack{
+ margin-bottom:14px;
+ width:max-content;
+ padding:10px 16px;
+ border-radius:12px;
+ background:rgba(255,255,255,.18);
+ box-shadow:0 0 14px rgba(255255,255,.35);
+ cursor:pointer;
+ font-size:15px;
+ font-weight:600;
+}
+</style>
+</head>
+
+<body>
+
+<div id="intro"><div class="heart" id="heart">❤️</div></div>
+
+<div id="question">
+<h1>Cutiepie, will you be my Valentine?</h1>
+<div class="buttons">
+<button id="yes">Yes</button>
+<button id="no">No</button>
+</div>
+<div id="tease"></div>
+</div>
+
+<div id="celebrate">
+<div id="message">💗 My favourite person &lt;3 💗</div>
+<div id="stats"></div>
+<div id="playArea"></div>
+<div id="combo"></div>
+<div id="deckBtn">View Deck</div>
+</div>
+
+<div id="cardReveal"></div>
+
+<div id="deckPanel">
+<div id="deckBack">← Back to Game</div>
+<h2>Your Love Deck</h2>
+<div class="cardGrid" id="cardGrid"></div>
+</div>
+
+<audio id="bg" src="bg.mp3" loop></audio>
+<audio id="blue" src="blue.mp3" loop></audio>
+<audio id="maw" src="maw.mp3"></audio>
+<audio id="popSound" src="pop.mp3"></audio>
+
+<script>
+const heart=document.getElementById("heart"),intro=document.getElementById("intro"),
+question=document.getElementById("question"),celebrate=document.getElementById("celebrate"),
+play=document.getElementById("playArea"),comboEl=document.getElementById("combo"),
+statsEl=document.getElementById("stats"),messageEl=document.getElementById("message"),
+deckBtn=document.getElementById("deckBtn"),deckPanel=document.getElementById("deckPanel"),
+deckBack=document.getElementById("deckBack"),cardGrid=document.getElementById("cardGrid"),
+cardReveal=document.getElementById("cardReveal"),
+bg=document.getElementById("bg"),blue=document.getElementById("blue"),
+maw=document.getElementById("maw"),popSound=document.getElementById("popSound");
+
+heart.onclick=()=>{bg.play().catch(()=>{});intro.style.display="none";question.style.display="flex";};
+
+const no=document.getElementById("no"),yes=document.getElementById("yes"),tease=document.getElementById("tease");
+const lines=["Almost 😏","Nope 😌","Try harder 💕","Persistent 😳"];
+let ti=0,ys=1;
+function moveNo(){
+ no.style.left=Math.random()*180+"px"; no.style.top=Math.random()*60+"px";
+ tease.textContent=lines[ti++%lines.length];
+ ys+=.05; yes.style.transform=`scale(${ys})`;
+ maw.currentTime=0; maw.volume=.2; maw.play().catch(()=>{});
+}
+no.onmouseover=moveNo; no.ontouchstart=moveNo;
+
+/* FLOATS */
+const FOOD=["🍫","🧇","🍝","🍕"],FLOWERS=["🌹","🌻","💋"],
+NICK=["Gumball 💕","Cutiepie 💖","floof ☁️"],ANIMALS=["😺","🦊","🐢","🐱","🧸"];
+const ALL=[...FOOD,...FLOWERS,...NICK,...ANIMALS];
+const cat=x=>FOOD.includes(x)?"food":FLOWERS.includes(x)?"flower":NICK.includes(x)?"nick":"animal";
+
+/* ===== 76 REAL THEMED CARDS ===== */
+const BASE=[
+["Central Perk Hearts","Love"],["Smelly Cat Serenade","Chaos"],["Blue French Horn","Love"],
+["Mischief Managed Kiss","Dream"],["Sparkling Twilight Glow","Dream"],
+["Severance Memory Split","Memory"],["Midnight Weeknd Mood","Dream"],
+["Kanye Heart Bear","Chaos"],["Modern Family Chaos Love","Love"],
+["Yellow Umbrella Promise","Dream"],["Always Patronus","Memory"],
+["Forks Moonlight","Memory"],["Macrodata Feelings","Chaos"],
+["Graduation Bear Hug","Dream"],["Dunphy Love Logic","Memory"],
+["Phoebe Soul Energy","Chaos"],["Potion Class Crush","Dream"],
+["Volturi Glance","Chaos"],["Outie/Innie Connection","Memory"],
+["Blinding Lights Bloom","Dream"]
+];
+
+const CARD_POOL=[...Array(76)].map((_,i)=>{
+ const b=BASE[i%BASE.length];
+ return{
+  name:b[0]+" "+(Math.floor(i/BASE.length)+1),
+  arcana:b[1],
+  charm:58+(i*3)%40,
+  power:55+(i*5)%40,
+  quote:["I'll be there for you.","Always.","Mischief managed.","Blinding lights."][i%4],
+  flavor:["Cozy energy","Romantic chaos","Magic destiny","Neon dream"][i%4]
+ };
+});
+
+let deck=JSON.parse(localStorage.getItem("deckData")||"[]");
+let highScore=Number(localStorage.getItem("highScore")||0);
+
+function saveDeck(){localStorage.setItem("deckData",JSON.stringify(deck));}
+
+function unlockCard(){
+ const c=CARD_POOL[Math.floor(Math.random()*CARD_POOL.length)];
+ if(deck.find(d=>d.name===c.name)) return;
+ deck.push(c); saveDeck();
+ cardReveal.innerHTML=`✨ <b>${c.name}</b><br><i>${c.quote}</i>`;
+ cardReveal.classList.remove("show");
+ void cardReveal.offsetWidth;
+ cardReveal.classList.add("show");
+ setTimeout(()=>cardReveal.classList.remove("show"),2600);
+}
+
+/* GAME */
+let floats=[],paused=true,combo=0,itemChain=0,typeChain=0,lastItem=null,lastType=null;
+function rv(a){const b=(Math.random()-.5)*1.4||.6;return a?b*0.8:b*1.3;}
+
+function spawn(){
+ const t=ALL[Math.floor(Math.random()*ALL.length)];
+ const el=document.createElement("div");
+ el.className="float"+(NICK.includes(t)?" nickname":"");
+ el.textContent=t; play.appendChild(el);
+ const active=cat(t)===lastType;
+ const o={el,type:t,x:Math.random()*(play.clientWidth-40),y:Math.random()*(play.clientHeight-40),vx:rv(active),vy:rv(active)};
+ el.onclick=()=>!paused&&popFloat(o);
+ floats.push(o);
+}
+
+function popFloat(o){
+ popSound.currentTime=0; popSound.play().catch(()=>{});
+ const c=cat(o.type);
+ itemChain=(o.type===lastItem)?itemChain+1:1;
+ typeChain=(c===lastType)?typeChain+1:1;
+ lastItem=o.type; lastType=c;
+ combo++;
+ if(combo>highScore){highScore=combo;localStorage.setItem("highScore",highScore);}
+ showPop(o.x,o.y); remove(o);
+ if(itemChain===3) softBurst(o.type);
+ if(typeChain===6){typeBurst(c);randomBurst();}
+ if(combo%50===0) unlockCard();
+ refill(); updateGlow(); updateStats();
+}
+
+function softBurst(t){floats.filter(f=>f.type===t).slice(0,2).forEach(f=>{showPop(f.x,f.y);remove(f);});}
+function typeBurst(c){floats.filter(f=>cat(f.type)===c).forEach(f=>{showPop(f.x,f.y);remove(f);});}
+function randomBurst(){const r=["food","flower","nick","animal"][Math.floor(Math.random()*4)];
+floats.filter(f=>cat(f.type)===r).forEach(f=>{showPop(f.x,f.y);remove(f);});}
+function remove(o){o.el.remove();floats=floats.filter(f=>f!==o);}
+function refill(){while(floats.length<27) spawn();}
+
+function showPop(x,y){
+ const d=document.createElement("div");
+ d.className="candy"; d.textContent="POP!";
+ d.style.left=x+"px"; d.style.top=y+"px";
+ play.appendChild(d); setTimeout(()=>d.remove(),600);
+}
+function updateGlow(){
+ floats.forEach(f=>{
+  f.el.classList.remove("active","passive");
+  if(cat(f.type)===lastType) f.el.classList.add("active");
+  else f.el.classList.add("passive");
+ });
+}
+
+function animate(){
+ if(!paused){
+  floats.forEach(f=>{
+   f.x+=f.vx; f.y+=f.vy;
+   if(f.x<0||f.x>play.clientWidth-40)f.vx*=-1;
+   if(f.y<0||f.y>play.clientHeight-40)f.vy*=-1;
+   f.el.style.transform=`translate(${f.x}px,${f.y}px)`;
+  });
+ }
+ requestAnimationFrame(animate);
+}
+animate();
+
+function updateStats(){
+ comboEl.textContent=`Combo ${combo} | Item ${itemChain} | Type ${typeChain}`;
+ statsEl.textContent=`Highest Score ${highScore}`;
+}
+
+/* DECK */
+function renderDeck(){
+ cardGrid.innerHTML="";
+ deck.forEach(c=>{
+  const d=document.createElement("div");
+  d.className="card";
+  d.innerHTML=`<div class="stamp">★ COLLECTIBLE</div>
+  <b>${c.name}</b><br>${c.arcana}<br>
+  ❤ ${c.charm} ⚡ ${c.power}<br><i>${c.quote}</i><br>${c.flavor}`;
+  cardGrid.appendChild(d);
+ });
+}
+deckBtn.onclick=()=>{deckPanel.style.display="flex";renderDeck();}
+deckBack.onclick=()=>deckPanel.style.display="none";
+
+yes.onclick=()=>{
+ bg.pause();
+ question.style.display="none";
+ celebrate.style.display="block";
+ blue.play().catch(()=>{});
+ for(let i=0;i<27;i++) spawn();
+ paused=false;
+ updateStats();
+ setTimeout(()=>{messageEl.style.opacity=0;statsEl.style.opacity=1;},3000);
+};
+</script>
+</body>
+</html>
