@@ -19,3 +19,8 @@ export function showPop(x, y, parent) {
   parent.appendChild(d);
   setTimeout(() => d.remove(), 600);
 }
+
+export function updateScoreDisplay(scoreEl, comboEl) {
+  if (scoreEl) scoreEl.textContent = `Score: ${state.score}`;
+  if (comboEl) comboEl.textContent = `Combo: ${state.combo}`;
+}
