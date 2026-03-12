@@ -1,0 +1,49 @@
+#playArea {
+  position: absolute;
+  top: 90px;
+  bottom: 70px;
+  left: 18px;
+  right: 18px;
+  overflow: hidden;
+}
+
+.float {
+  position: absolute;
+  font-size: 28px;
+  cursor: pointer;
+  transition: transform .25s;
+}
+
+.float.active {
+  filter: drop-shadow(0 0 16px #ff7aa2);
+  transform: scale(1.5);
+}
+
+.float.active::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .4);
+  box-shadow: 0 0 14px rgba(255, 150, 220, .7);
+}
+
+.float.passive {
+  filter: blur(.8px) brightness(.85);
+  transform: scale(.8);
+}
+
+.candy {
+  position: absolute;
+  font-size: 18px;
+  font-weight: 900;
+  text-shadow: 0 0 16px #ff4d88;
+  animation: candy .6s forwards;
+  pointer-events: none;
+}
+
+@keyframes candy {
+  0% { opacity: 0; transform: scale(.3); }
+  25% { opacity: 1; transform: scale(1.5); }
+  100% { opacity: 0; transform: translateY(-55px) scale(.7); }
+}

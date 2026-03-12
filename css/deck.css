@@ -1,0 +1,72 @@
+#deckBtn {
+  position: absolute;
+  bottom: 18px;
+  left: 18px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .1);
+  cursor: pointer;
+}
+
+#cardReveal {
+  position: absolute;
+  left: 50%;
+  bottom: -260px;
+  transform: translateX(-50%);
+  width: 250px;
+  background: #2a0f1a;
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+  transition: bottom .6s ease;
+  z-index: 700;
+  box-shadow: 0 0 24px rgba(255, 120, 180, .5);
+  pointer-events: none;
+}
+
+#cardReveal.show {
+  bottom: 110px;
+}
+
+#deckPanel {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 0, 12, .96);
+  display: none;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 999;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding-bottom: 120px;
+}
+
+.card {
+  background: #2a0f1a;
+  border-radius: 12px;
+  padding: 8px;
+  font-size: 10px;
+  aspect-ratio: 3/4;
+}
+
+.card .stamp {
+  font-size: 9px;
+  opacity: .7;
+}
+
+#deckBack {
+  margin-bottom: 14px;
+  width: max-content;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .18);
+  box-shadow: 0 0 14px rgba(255, 255, 255, .35);
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+}

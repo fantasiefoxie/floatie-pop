@@ -1,0 +1,59 @@
+:root {
+  --d1: #14080d;
+  --d2: #2b0f1a;
+  --d3: #0b0b10;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--d1), var(--d2), var(--d3));
+  color: white;
+  font-family: Inter, system-ui;
+}
+
+#intro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.heart {
+  font-size: 92px;
+  cursor: pointer;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  50% { transform: scale(1.15); }
+}
+
+#stats {
+  position: absolute;
+  top: 24px;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity .8s;
+}
+
+#combo {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  font-size: 13px;
+}
+
+#celebrate {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
