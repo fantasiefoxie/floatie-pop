@@ -1,0 +1,209 @@
+/* Swipe-Chain Visual Feedback Styles */
+
+/* Chain selected floatie styling */
+.float.chain-selected {
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.9) !important;
+  border: 3px solid rgba(0, 255, 136, 0.8) !important;
+  z-index: 100 !important;
+  animation: chainPulse 0.3s ease-out;
+}
+
+/* Chain preview SVG styling */
+.chain-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 99;
+  display: none;
+}
+
+.chain-preview line {
+  filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.6));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chain-preview circle {
+  filter: drop-shadow(0 0 3px rgba(0, 255, 136, 0.4));
+}
+
+/* Chain bonus display */
+.chain-bonus {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translateX(-50%);
+  color: #00ff88;
+  font-size: 22px;
+  font-weight: bold;
+  text-shadow: 0 0 15px #00ff88, 0 0 30px rgba(0, 255, 136, 0.5);
+  pointer-events: none;
+  z-index: 2000;
+  animation: chainBonusFloat 1.5s ease-out forwards;
+  white-space: nowrap;
+}
+
+/* Chain pulse animation */
+@keyframes chainPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.9);
+  }
+  100% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+  }
+}
+
+/* Chain bonus float animation */
+@keyframes chainBonusFloat {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px) scale(1.2);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-40px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-60px) scale(0.8);
+  }
+}
+
+/* Touch feedback for chain start */
+.touch-feedback {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(0, 255, 136, 0.2);
+  border: 2px solid rgba(0, 255, 136, 0.6);
+  pointer-events: none;
+  z-index: 1000;
+  display: none;
+  transform: translate(-50%, -50%);
+  animation: touchPulse 0.4s ease-out;
+}
+
+@keyframes touchPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+}
+
+/* Chain length indicator */
+.chain-length-indicator {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 255, 136, 0.2);
+  border: 2px solid #00ff88;
+  border-radius: 20px;
+  padding: 8px 16px;
+  color: #00ff88;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 0 8px #00ff88;
+  pointer-events: none;
+  z-index: 1001;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Multiplier badge */
+.multiplier-badge {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 170, 0, 0.2);
+  border: 2px solid #ffaa00;
+  border-radius: 15px;
+  padding: 6px 12px;
+  color: #ffaa00;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 0 0 6px #ffaa00;
+  pointer-events: none;
+  z-index: 1001;
+  animation: slideDown 0.3s ease-out 0.1s both;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  .float.chain-selected {
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.8) !important;
+    border: 2px solid rgba(0, 255, 136, 0.7) !important;
+  }
+  
+  .chain-bonus {
+    font-size: 18px;
+  }
+  
+  .chain-length-indicator {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .float.chain-selected {
+    box-shadow: 0 0 12px rgba(0, 255, 136, 0.7) !important;
+  }
+  
+  .chain-bonus {
+    font-size: 16px;
+  }
+  
+  .chain-length-indicator {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+}
+
+/* Accessibility: Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .float.chain-selected,
+  .chain-bonus,
+  .touch-feedback,
+  .chain-length-indicator,
+  .multiplier-badge {
+    animation: none !important;
+  }
+  
+  .float.chain-selected {
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.8) !important;
+  }
+}

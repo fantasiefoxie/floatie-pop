@@ -1,45 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Velvet Pop</title>
-<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/core.css">
-<link rel="stylesheet" href="css/game.css">
-<link rel="stylesheet" href="css/deck.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>Floatie Pop | Premium Experience</title>
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="css/index.css?v=6">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🫧</text></svg>">
 </head>
-
 <body>
+    <!-- Animated Cosmic Background -->
+    <div id="background-layer"></div>
 
-<div id="celebrate" style="display: block;">
-  <div id="stats"></div>
-  <div id="score">Score: 0</div>
-  <div id="timer" style="display: none;">Time: 0:00</div>
-  <div id="runInfo" style="display: none;"></div>
-  <div id="playArea"></div>
-  <div id="combo"></div>
-  <div id="modeBtn">Survival Mode</div>
-  <div id="runBtn">Start Run</div>
-  <div id="progressBtn">🏆 Progress</div>
-  <div id="perfBtn">🔍 Performance</div>
-  <div id="shareBtn" style="display: none;">📤 Share Score</div>
-  <div id="deckBtn">View Deck</div>
-</div>
+    <!-- Gameplay Area -->
+    <div id="playArea">
+        <!-- The canvas is injected here by the RenderSystem -->
+    </div>
 
-<div id="cardReveal"></div>
+    <!-- UI Overlay Layer -->
+    <div id="ui-root">
+        <!-- Top HUD: Score & Combo -->
+        <div class="header-bar glass-panel">
+            <div class="stat-group">
+                <span class="stat-label">Score</span>
+                <span id="score-display" class="stat-value">0</span>
+            </div>
+            <div class="stat-group">
+                <span class="stat-label">Combo</span>
+                <span id="combo-display" class="stat-value">1.0x</span>
+            </div>
+        </div>
 
-<div id="deckPanel">
-  <div id="deckBack">← Back to Game</div>
-  <h2>Your Love Deck</h2>
-  <div class="cardGrid" id="cardGrid"></div>
-</div>
+        <!-- Floating Controls -->
+        <div id="settings-toggle" class="btn-round glass-panel">⚙️</div>
+        <div id="mode-toggle" class="btn-round glass-panel">🏆</div>
+        <div id="deck-access" class="btn-round glass-panel">🃏</div>
+    </div>
 
-<audio id="bg" src="bg.mp3" loop></audio>
-<audio id="blue" src="blue.mp3" loop></audio>
-<audio id="maw" src="maw.mp3"></audio>
-<audio id="popSound" src="pop.mp3"></audio>
+    <!-- Game Flow Overlays (Modals) -->
+    <div id="menu-overlay" class="overlay">
+        <div class="modal glass-panel">
+            <h1 style="font-size: 64px; line-height: 0.9; margin-bottom: 8px;">FLOATIE<br><span style="color: var(--accent-primary)">POP</span></h1>
+            <p style="opacity: 0.6; font-weight: 600; letter-spacing: 0.2em; margin-bottom: 24px;">PREMIUM CHILL</p>
+            <button id="start-btn" class="primary-btn">START SESSION</button>
+        </div>
+    </div>
 
-<script type="module" src="js/main.js"></script>
+    <div id="game-over-overlay" class="overlay">
+        <div class="modal glass-panel">
+            <h2 style="font-size: 48px; color: var(--accent-primary); margin-bottom: 16px;">SESSION ENDED</h2>
+            <div style="margin: 32px 0;">
+                <p class="stat-label">Final Score</p>
+                <p id="final-score" class="stat-value" style="font-size: 56px; color: var(--accent-secondary);">0</p>
+            </div>
+            <div style="display: flex; gap: 16px; justify-content: center;">
+                <button id="restart-btn" class="primary-btn" style="margin-top: 0;">PLAY AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Entry Point -->
+    <script type="module" src="js/main.js?v=7"></script>
 </body>
 </html>

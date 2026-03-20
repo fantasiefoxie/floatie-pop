@@ -1,0 +1,273 @@
+/* Full Screen Game Experience */
+
+/* Prevent scrolling and ensure full viewport */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+}
+
+/* Prevent zoom on mobile */
+input, textarea, select {
+  font-size: 16px !important;
+  transform-origin: left top;
+}
+
+/* Disable text selection during gameplay */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Full screen animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes touchFeedback {
+  0% { 
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.8;
+  }
+  50% { 
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+  100% { 
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+}
+
+@keyframes tapFeedback {
+  0% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0.6);
+  }
+  50% { 
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+  }
+  100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0.6);
+  }
+}
+
+@keyframes chainFeedback {
+  0% { 
+    transform: scale(1);
+    border: 2px solid rgba(0, 255, 136, 0.6);
+  }
+  50% { 
+    transform: scale(1.05);
+    border: 2px solid rgba(0, 255, 136, 1);
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+  }
+  100% { 
+    transform: scale(1);
+    border: 2px solid rgba(0, 255, 136, 0.8);
+  }
+}
+
+@keyframes chainBonus {
+  0% { 
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px) scale(0.8);
+  }
+  20% { 
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1.1);
+  }
+  80% { 
+    opacity: 1;
+    transform: translateX(-50%) translateY(-20px) scale(1);
+  }
+  100% { 
+    opacity: 0;
+    transform: translateX(-50%) translateY(-40px) scale(0.9);
+  }
+}
+
+@keyframes rainbow-pulse {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Chain selection visual feedback */
+.chain-selected {
+  border: 2px solid #00ff88 !important;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.6) !important;
+  z-index: 100 !important;
+}
+
+/* Touch feedback styles */
+.touch-feedback {
+  animation: touchFeedback 0.3s ease-out;
+}
+
+/* Notification styles */
+.run-notification,
+.synergy-notification,
+.unlock-notification,
+.achievement-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(20, 8, 13, 0.95);
+  border: 2px solid #ff4d88;
+  border-radius: 15px;
+  padding: 15px 20px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 4000;
+  animation: slideUp 0.4s ease-out;
+  max-width: 300px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.run-notification.fade-out,
+.synergy-notification.fade-out,
+.unlock-notification.fade-out,
+.achievement-notification.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* Game over screen animations */
+.game-over-screen {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.game-over-screen > div {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* Performance panel styles */
+.performance-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(20, 8, 13, 0.95);
+  border: 2px solid #ff00ff;
+  border-radius: 20px;
+  padding: 20px;
+  color: white;
+  z-index: 5000;
+  animation: slideUp 0.4s ease-out;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.progression-panel {
+  position: fixed;
+  inset: 20px;
+  background: rgba(20, 8, 13, 0.95);
+  border: 2px solid #ffd700;
+  border-radius: 20px;
+  padding: 20px;
+  color: white;
+  z-index: 5000;
+  animation: slideUp 0.4s ease-out;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+}
+
+/* Mobile-specific full screen optimizations */
+@media (max-width: 768px) {
+  /* Ensure no browser UI interference */
+  body {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+  
+  /* Hide address bar on mobile */
+  .game-container {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Prevent pull-to-refresh */
+  body {
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* Landscape mode optimizations */
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Compact UI for landscape mobile */
+  #topZone {
+    height: 10vh !important;
+    min-height: 60px !important;
+  }
+  
+  #bottomZone {
+    height: 15vh !important;
+    min-height: 80px !important;
+  }
+  
+  #centerZone {
+    height: 75vh !important;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .float {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Prevent context menu on long press */
+img, .float, #playArea {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Ensure buttons are accessible */
+button, .button {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}

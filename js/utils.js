@@ -1,4 +1,5 @@
 import { FOOD, FLOWERS, HUMAN } from './constants.js';
+import { state } from './state.js';
 
 export const cat = (x) => 
   FOOD.includes(x) ? "food" : 
@@ -21,6 +22,6 @@ export function showPop(x, y, parent) {
 }
 
 export function updateScoreDisplay(scoreEl, comboEl) {
-  if (scoreEl) scoreEl.textContent = `Score: ${state.score}`;
-  if (comboEl) comboEl.textContent = `Combo: ${state.combo}`;
+  if (scoreEl) scoreEl.textContent = `Score: ${state.score.total}`;
+  if (comboEl) comboEl.textContent = `Combo: ${state.combo.current}`;
 }

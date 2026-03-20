@@ -1,0 +1,488 @@
+/* Responsive Game Scaling CSS */
+
+/* Base responsive variables */
+:root {
+  --floatie-size: 40px;
+  --touch-target: 48px;
+  --board-scale: 1;
+  --ui-scale: 1;
+  --font-base: 14px;
+}
+
+/* Extra Small Phones (< 480px) */
+@media (max-width: 479px) {
+  :root {
+    --floatie-size: 32px;
+    --touch-target: 48px;
+    --board-scale: 0.85;
+    --ui-scale: 0.9;
+    --font-base: 12px;
+  }
+
+  .float {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    font-size: 20px !important;
+  }
+
+  #playArea {
+    transform: scale(0.85);
+    max-height: 35vh;
+  }
+
+  #topZone {
+    height: 18vh;
+    padding: 8px 10px;
+  }
+
+  #score {
+    font-size: 16px;
+  }
+
+  #timer, #combo {
+    font-size: 12px;
+  }
+
+  #bottomZone {
+    height: 42vh;
+    padding: 10px;
+  }
+
+  #primaryControls > div {
+    font-size: 12px;
+    padding: 12px 14px;
+    min-height: 48px;
+  }
+
+  #secondaryControls {
+    gap: 6px;
+  }
+
+  #secondaryControls > div {
+    font-size: 11px;
+    padding: 8px 10px;
+    min-height: 44px;
+  }
+
+  .chain-bonus {
+    font-size: 16px;
+  }
+
+  #haptic-settings-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+}
+
+/* Small Phones (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+  :root {
+    --floatie-size: 36px;
+    --touch-target: 48px;
+    --board-scale: 0.9;
+    --ui-scale: 0.95;
+    --font-base: 13px;
+  }
+
+  .float {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    font-size: 22px !important;
+  }
+
+  #playArea {
+    transform: scale(0.9);
+    max-height: 36vh;
+  }
+
+  #topZone {
+    height: 20vh;
+    padding: 10px 12px;
+  }
+
+  #score {
+    font-size: 18px;
+  }
+
+  #timer, #combo {
+    font-size: 14px;
+  }
+
+  #bottomZone {
+    height: 40vh;
+    padding: 12px;
+  }
+
+  #primaryControls > div {
+    font-size: 14px;
+    padding: 14px 16px;
+    min-height: 52px;
+  }
+
+  #secondaryControls {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  #secondaryControls > div {
+    font-size: 12px;
+    padding: 10px 12px;
+    min-height: 46px;
+  }
+
+  .chain-bonus {
+    font-size: 18px;
+  }
+
+  #haptic-settings-btn {
+    width: 46px;
+    height: 46px;
+    font-size: 20px;
+  }
+}
+
+/* Medium Tablets (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --floatie-size: 40px;
+    --touch-target: 48px;
+    --board-scale: 1;
+    --ui-scale: 1;
+    --font-base: 14px;
+  }
+
+  .float {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    font-size: 24px !important;
+  }
+
+  #playArea {
+    transform: scale(1);
+    max-height: 40vh;
+  }
+
+  #topZone {
+    height: 22vh;
+    padding: 12px 14px;
+  }
+
+  #score {
+    font-size: 20px;
+  }
+
+  #timer, #combo {
+    font-size: 16px;
+  }
+
+  #bottomZone {
+    height: 38vh;
+    padding: 14px;
+  }
+
+  #primaryControls > div {
+    font-size: 16px;
+    padding: 16px 20px;
+    min-height: 56px;
+  }
+
+  #secondaryControls {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  #secondaryControls > div {
+    font-size: 14px;
+    padding: 12px 14px;
+    min-height: 48px;
+  }
+
+  .chain-bonus {
+    font-size: 20px;
+  }
+
+  #haptic-settings-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+  }
+}
+
+/* Large Tablets (1024px - 1439px) */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  :root {
+    --floatie-size: 44px;
+    --touch-target: 52px;
+    --board-scale: 1.1;
+    --ui-scale: 1.05;
+    --font-base: 15px;
+  }
+
+  .float {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    font-size: 26px !important;
+  }
+
+  #playArea {
+    transform: scale(1.1);
+    max-height: 42vh;
+  }
+
+  #topZone {
+    height: 24vh;
+    padding: 14px 16px;
+  }
+
+  #score {
+    font-size: 21px;
+  }
+
+  #timer, #combo {
+    font-size: 17px;
+  }
+
+  #bottomZone {
+    height: 36vh;
+    padding: 16px;
+  }
+
+  #primaryControls > div {
+    font-size: 17px;
+    padding: 17px 21px;
+    min-height: 59px;
+  }
+
+  #secondaryControls {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  #secondaryControls > div {
+    font-size: 15px;
+    padding: 13px 15px;
+    min-height: 50px;
+  }
+
+  .chain-bonus {
+    font-size: 21px;
+  }
+
+  #haptic-settings-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+  }
+}
+
+/* Extra Large Desktops (>= 1440px) */
+@media (min-width: 1440px) {
+  :root {
+    --floatie-size: 48px;
+    --touch-target: 56px;
+    --board-scale: 1.2;
+    --ui-scale: 1.1;
+    --font-base: 16px;
+  }
+
+  .float {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 56px !important;
+    min-height: 56px !important;
+    font-size: 28px !important;
+  }
+
+  #playArea {
+    transform: scale(1.2);
+    max-height: 45vh;
+  }
+
+  #topZone {
+    height: 25vh;
+    padding: 16px 18px;
+  }
+
+  #score {
+    font-size: 22px;
+  }
+
+  #timer, #combo {
+    font-size: 18px;
+  }
+
+  #bottomZone {
+    height: 35vh;
+    padding: 18px;
+  }
+
+  #primaryControls > div {
+    font-size: 18px;
+    padding: 18px 22px;
+    min-height: 62px;
+  }
+
+  #secondaryControls {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  #secondaryControls > div {
+    font-size: 16px;
+    padding: 14px 16px;
+    min-height: 52px;
+  }
+
+  .chain-bonus {
+    font-size: 24px;
+  }
+
+  #haptic-settings-btn {
+    width: 52px;
+    height: 52px;
+    font-size: 26px;
+  }
+}
+
+/* Portrait Orientation Adjustments */
+@media (orientation: portrait) {
+  #centerZone {
+    padding: 4px;
+  }
+
+  #playArea {
+    max-width: 95vw;
+    max-height: 35vh;
+  }
+
+  #topZone {
+    min-height: 100px;
+  }
+
+  #bottomZone {
+    min-height: 180px;
+  }
+}
+
+/* Landscape Orientation Adjustments */
+@media (orientation: landscape) {
+  #topZone {
+    height: 18vh;
+  }
+
+  #bottomZone {
+    height: 30vh;
+  }
+
+  #centerZone {
+    flex: 1;
+  }
+
+  #playArea {
+    max-width: 60vw;
+    max-height: 50vh;
+  }
+
+  #primaryControls > div {
+    max-width: 140px;
+  }
+
+  #secondaryControls {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+}
+
+/* Touch feedback scaling */
+.touch-feedback {
+  width: var(--touch-target) !important;
+  height: var(--touch-target) !important;
+}
+
+/* Consistent touch target sizing */
+#primaryControls > div,
+#secondaryControls > div {
+  min-height: var(--touch-target);
+}
+
+/* Smooth transitions for responsive changes */
+.float,
+#playArea,
+#primaryControls > div,
+#secondaryControls > div {
+  transition: all 0.3s ease-out;
+}
+
+/* Accessibility: Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .float,
+  #playArea,
+  #primaryControls > div,
+  #secondaryControls > div {
+    transition: none !important;
+  }
+}
+
+/* High DPI screens (Retina) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .float {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  #playArea {
+    border-width: 2px;
+  }
+}
+
+/* Low resolution screens */
+@media (max-width: 360px) {
+  .float {
+    font-size: 18px !important;
+  }
+
+  #score {
+    font-size: 14px;
+  }
+
+  #primaryControls > div {
+    font-size: 11px;
+    padding: 10px 12px;
+  }
+
+  #secondaryControls > div {
+    font-size: 10px;
+    padding: 6px 8px;
+  }
+}
+
+/* Foldable devices */
+@media (screen-spanning: single-fold-vertical) {
+  #celebrate {
+    display: flex;
+    flex-direction: row;
+  }
+
+  #topZone {
+    width: 50%;
+    height: 100%;
+  }
+
+  #centerZone {
+    width: 50%;
+    height: 100%;
+  }
+
+  #bottomZone {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+  }
+}

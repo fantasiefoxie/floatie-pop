@@ -1,0 +1,72 @@
+/* Haptic Settings UI Styles */
+
+.haptic-settings-panel {
+  animation: slideInRight 0.3s ease-out;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+#haptic-settings-btn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+#haptic-settings-btn:active {
+  transform: scale(0.95);
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 480px) {
+  .haptic-settings-panel {
+    bottom: 10px !important;
+    right: 10px !important;
+    min-width: 220px;
+    padding: 15px;
+  }
+  
+  #haptic-settings-btn {
+    bottom: 10px !important;
+    right: 10px !important;
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+  }
+}
+
+/* Animation keyframes */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Haptic status indicator */
+#haptic-enabled-status {
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+#haptic-enabled-status.disabled {
+  color: #ff4d88;
+}
+
+/* Test button grid responsive */
+@media (max-width: 768px) {
+  .haptic-settings-panel {
+    min-width: 200px;
+  }
+}

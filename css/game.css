@@ -1,10 +1,10 @@
 #playArea {
-  position: absolute;
-  top: 90px;
-  bottom: 70px;
-  left: 18px;
-  right: 18px;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
+  z-index: 5;
 }
 
 .float {
@@ -12,6 +12,7 @@
   font-size: 28px;
   cursor: pointer;
   transition: transform .25s;
+  z-index: 15;
 }
 
 .float.active {
