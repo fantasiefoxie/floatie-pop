@@ -25,6 +25,8 @@
  * - hapticFeedback (intensity)
  */
 
+import { TIMINGS } from '../timing.js';
+
 export class PopDetectionSystem {
   constructor(systemManager) {
     this.systemManager = systemManager;
@@ -123,28 +125,67 @@ export class PopDetectionSystem {
       return;
     }
 
-    // Remove all floaties in chain
-    const removedCount = this.removeChain(chainSelection, gameState);
-    if (removedCount === 0) return;
-
     // Calculate center position for effects
     const centerX = chainSelection.reduce((sum, f) => sum + f.x, 0) / chainSelection.length;
     const centerY = chainSelection.reduce((sum, f) => sum + f.y, 0) / chainSelection.length;
 
-    // Trigger pop effects for each floatie
-    for (const floatie of chainSelection) {
-      this.triggerPopEffects(floatie, floatie.x, floatie.y, gameState);
+    // Lock input during chain resolution
+    gameState.input.locked = true;
+    console.log('🔒 Input locked for chain resolution');
+
+    // Pop floaties sequentially with 30-50ms delay between each
+    this.popChainSequentially(chainSelection, family, centerX, centerY, gameState);
+
+    console.log(`🔗 Chain popping: ${chainSelection.length} ${family} floaties (sequential)`);
+  }
+
+  /**
+   * Pop chain floaties sequentially with delays
+   * @param {Array} chainSelection - Array of floaties to pop
+   * @param {string} family - Floatie family
+   * @param {number} centerX - Center X position
+   * @param {number} centerY - Center Y position
+   * @param {Object} gameState - Centralized game state
+   */
+  popChainSequentially(chainSelection, family, centerX, centerY, gameState) {
+    const actionQueue = this.systemManager.getSystem('ActionQueueSystem');
+    
+    if (!actionQueue) {
+      // Fallback: pop all at once if no action queue
+      const removedCount = this.removeChain(chainSelection, gameState);
+      this.systemManager.emit('chain:popResolved', {
+        chainSelection,
+        family,
+        count: removedCount,
+        centerPosition: { x: centerX, y: centerY }
+      });
+      return;
     }
 
-    // Emit chain pop resolved event
-    this.systemManager.emit('chain:popResolved', {
+    // Enqueue each floatie pop with sequential delays
+    for (let i = 0; i < chainSelection.length; i++) {
+      const floatie = chainSelection[i];
+      const delay = i * TIMINGS.POP_DELAY;
+
+      // Enqueue pop action for this floatie
+      actionQueue.enqueueAction('popFloatie', {
+        floatie,
+        family,
+        index: i,
+        total: chainSelection.length,
+        centerX,
+        centerY
+      }, delay);
+    }
+
+    // Emit chain pop resolved after all floaties are popped
+    const totalDelay = chainSelection.length * TIMINGS.POP_DELAY + TIMINGS.CHAIN_RESOLUTION_GAP;
+    actionQueue.enqueueAction('chainPopComplete', {
       chainSelection,
       family,
-      count: removedCount,
+      count: chainSelection.length,
       centerPosition: { x: centerX, y: centerY }
-    });
-
-    console.log(`🔗 Chain popped: ${removedCount} ${family} floaties`);
+    }, totalDelay);
   }
 
   /**
@@ -237,21 +278,42 @@ export class PopDetectionSystem {
    * @param {Object} gameState - Centralized game state
    */
   triggerPopEffects(floatie, x, y, gameState) {
-    // Emit particle spawn event (rendering handled by RenderSystem)
-    this.systemManager.emit('spawnParticles', {
+    const priorityEvent = this.systemManager.getSystem('PriorityEventSystem');
+    const actionQueue = this.systemManager.getSystem('ActionQueueSystem');
+    if (!actionQueue) return;
+
+    // HIGH priority: particles appear immediately
+    actionQueue.enqueueAction('spawnParticles', {
       x,
       y,
       type: floatie.family,
       count: floatie.isRare ? 20 : 10,
       color: this.getFamilyColor(floatie.family),
       isRare: floatie.isRare
-    });
+    }, 0);
 
-    // Emit haptic feedback event
-    this.systemManager.emit('hapticFeedback', {
-      intensity: floatie.isRare ? 'strong' : 'medium',
-      duration: floatie.isRare ? 50 : 30
-    });
+    // MEDIUM priority: haptic and sound slightly delayed
+    if (priorityEvent) {
+      priorityEvent.emitMedium('hapticFeedback', {
+        intensity: floatie.isRare ? 'strong' : 'medium',
+        duration: floatie.isRare ? TIMINGS.HAPTIC_RARE_DURATION : TIMINGS.HAPTIC_NORMAL_DURATION
+      });
+
+      priorityEvent.emitMedium('playSound', {
+        sound: 'pop',
+        volume: 0.3
+      });
+    } else {
+      actionQueue.enqueueAction('triggerHaptic', {
+        intensity: floatie.isRare ? 'strong' : 'medium',
+        duration: floatie.isRare ? TIMINGS.HAPTIC_RARE_DURATION : TIMINGS.HAPTIC_NORMAL_DURATION
+      }, TIMINGS.HAPTIC_NORMAL_DURATION);
+
+      actionQueue.enqueueAction('playSound', {
+        sound: 'pop',
+        volume: 0.3
+      }, TIMINGS.HAPTIC_NORMAL_DURATION);
+    }
   }
 
   /**

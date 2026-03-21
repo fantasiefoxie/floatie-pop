@@ -1,33 +1,37 @@
 /**
  * SCORE SYSTEM - Converts floatie pops and combo multipliers into player score
- * 
+ *
  * Features:
  * - Calculates score from floatie pops with combo multiplier
  * - Awards bonuses for chain pops and combo milestones
  * - Awards bonus for rare floaties
  * - Emits scoreUpdated and spawnScoreText events
  * - Event-driven architecture (no direct rendering)
- * 
+ *
  * Lifecycle:
  * - init: Initialize system
  * - update: Not used (event-driven)
  * - onEvent: Handle floatiePopped, chainPopResolved, comboMilestoneSmall, comboMilestoneLarge events
- * 
+ *
  * Listens to:
  * - floatie:popped (from PopDetectionSystem)
  * - chain:popResolved (from PopDetectionSystem)
  * - combo:milestoneSmall (from ComboSystem)
  * - combo:milestoneLarge (from ComboSystem)
- * 
+ * - combo:building (from ComboSystem, for current multiplier)
+ *
  * Emits events:
  * - score:updated (total, lastGain)
  * - score:spawnText (value, position)
  */
 
+import { TIMINGS } from '../timing.js';
+
 export class ScoreSystem {
   constructor(systemManager) {
     this.systemManager = systemManager;
     this.baseScore = 10;
+    this.pendingMultiplier = 1; // Track multiplier between building and resolved
   }
 
   /**
@@ -41,6 +45,7 @@ export class ScoreSystem {
         lastGain: 0
       };
     }
+    this.pendingMultiplier = 1;
     console.log('✅ ScoreSystem initialized');
   }
 
@@ -62,6 +67,9 @@ export class ScoreSystem {
       this.handleFloatiePopped(data, gameState);
     } else if (eventName === 'chain:popResolved') {
       this.handleChainPopResolved(data, gameState);
+    } else if (eventName === 'combo:building') {
+      // Track combo count for score calculation (before multiplier is applied)
+      this.pendingMultiplier = this.calculateMultiplier(data.current);
     } else if (eventName === 'combo:milestoneSmall') {
       this.handleMilestoneSmall(data, gameState);
     } else if (eventName === 'combo:milestoneLarge') {
@@ -76,9 +84,11 @@ export class ScoreSystem {
    */
   handleFloatiePopped(data, gameState) {
     const { isRare, position } = data;
+    const priorityEvent = this.systemManager.getSystem('PriorityEventSystem');
+    const actionQueue = this.systemManager.getSystem('ActionQueueSystem');
 
-    // Calculate base score with combo multiplier
-    let scoreGain = this.baseScore * gameState.combo.multiplier;
+    // Calculate base score with pending multiplier (from combo:building)
+    let scoreGain = 10 * this.pendingMultiplier;
 
     // Add rare floatie bonus
     if (isRare) {
@@ -89,21 +99,40 @@ export class ScoreSystem {
     gameState.score.total += scoreGain;
     gameState.score.lastGain = scoreGain;
 
-    // Emit score updated event
-    this.systemManager.emit('score:updated', {
-      total: gameState.score.total,
-      lastGain: scoreGain
-    });
-
-    // Emit score text spawn event for visual feedback
-    if (position) {
-      this.systemManager.emit('score:spawnText', {
-        value: scoreGain,
-        position: { x: position.x, y: position.y }
+    // MEDIUM priority: score updated (secondary feedback)
+    if (priorityEvent) {
+      priorityEvent.emitMedium('score:updated', {
+        total: gameState.score.total,
+        lastGain: scoreGain
+      });
+    } else {
+      this.systemManager.emit('score:updated', {
+        total: gameState.score.total,
+        lastGain: scoreGain
       });
     }
 
+    // Queue score text spawn with configured delay
+    if (actionQueue) {
+      actionQueue.enqueueAction('spawnScoreText', {
+        value: scoreGain,
+        position
+      }, TIMINGS.SCORE_DELAY);
+    }
+
     console.log(`💰 Score: +${scoreGain} (Total: ${gameState.score.total})`);
+  }
+
+  /**
+   * Calculate multiplier based on combo count
+   * @param {number} comboCount - Current combo count
+   * @returns {number} Multiplier value
+   */
+  calculateMultiplier(comboCount) {
+    if (comboCount >= 7) return 4;
+    if (comboCount >= 5) return 3;
+    if (comboCount >= 3) return 2;
+    return 1;
   }
 
   /**

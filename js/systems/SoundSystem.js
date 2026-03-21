@@ -5,7 +5,7 @@
  * - Pop sounds
  * - Combo sounds
  * - Card sounds
- * - Background music
+ * - Background music (bg.mp3 plays continuously)
  * - Volume control
  */
 
@@ -13,26 +13,34 @@ export class SoundSystem {
   constructor(systemManager) {
     this.systemManager = systemManager;
     this.sounds = {};
+    this.sfx = {};
     this.volume = 0.3;
     this.enabled = true;
+    this.bgMusicPlaying = false;
   }
 
   /**
    * Initialize sound system
    */
   init(gameState) {
-    // Create audio elements
+    // Background music (loops continuously)
     this.sounds = {
+      bg: new Audio('bg.mp3')
+    };
+    this.sounds.bg.loop = true;
+    this.sounds.bg.volume = this.volume * 0.5;
+
+    // Sound effects (one-shot)
+    this.sfx = {
       pop: new Audio('pop.mp3'),
-      bg: new Audio('bg.mp3'),
       blue: new Audio('blue.mp3'),
       maw: new Audio('maw.mp3')
     };
 
-    // Set volumes
-    for (const sound of Object.values(this.sounds)) {
+    // Set SFX volumes
+    for (const sound of Object.values(this.sfx)) {
       sound.volume = this.volume;
-      sound.loop = sound === this.sounds.bg || sound === this.sounds.blue;
+      sound.loop = false;
     }
 
     // Listen for game events
@@ -46,6 +54,7 @@ export class SoundSystem {
     this.systemManager.on('game:over', () => this.stopMusic());
 
     console.log('✅ SoundSystem initialized');
+    console.log('🎵 Background music: bg.mp3 (continuous loop)');
   }
 
   /**
@@ -67,10 +76,10 @@ export class SoundSystem {
    */
   playPop() {
     if (!this.enabled) return;
-    const sound = this.sounds.pop;
+    const sound = this.sfx.pop;
     if (sound) {
       sound.currentTime = 0;
-      sound.play().catch(() => {}); // Ignore autoplay errors
+      sound.play().catch(() => {});
     }
   }
 
@@ -79,11 +88,11 @@ export class SoundSystem {
    */
   playCombo(multiplier) {
     if (!this.enabled) return;
-    
+
     if (multiplier >= 4) {
-      this.playSound('maw');
+      this.playSFX('maw');
     } else if (multiplier >= 2) {
-      this.playSound('blue');
+      this.playSFX('blue');
     }
   }
 
@@ -92,11 +101,11 @@ export class SoundSystem {
    */
   playMilestone(type) {
     if (!this.enabled) return;
-    
+
     if (type === 'large') {
-      this.playSound('maw');
+      this.playSFX('maw');
     } else {
-      this.playSound('blue');
+      this.playSFX('blue');
     }
   }
 
@@ -105,7 +114,7 @@ export class SoundSystem {
    */
   playCardDraw() {
     if (!this.enabled) return;
-    this.playSound('blue');
+    this.playSFX('blue');
   }
 
   /**
@@ -113,14 +122,14 @@ export class SoundSystem {
    */
   playCardUse() {
     if (!this.enabled) return;
-    this.playSound('pop');
+    this.playSFX('pop');
   }
 
   /**
-   * Play a sound by name
+   * Play a sound effect by name (doesn't interrupt BG music)
    */
-  playSound(name) {
-    const sound = this.sounds[name];
+  playSFX(name) {
+    const sound = this.sfx[name];
     if (sound) {
       sound.currentTime = 0;
       sound.play().catch(() => {});
@@ -128,14 +137,20 @@ export class SoundSystem {
   }
 
   /**
-   * Start background music
+   * Start background music (plays continuously)
    */
   startMusic() {
-    if (!this.enabled) return;
+    if (!this.enabled || this.bgMusicPlaying) return;
+    
     const bg = this.sounds.bg;
     if (bg) {
-      bg.volume = this.volume * 0.5; // Lower volume for BG
-      bg.play().catch(() => {}); // Ignore autoplay errors
+      bg.volume = this.volume * 0.5;
+      bg.play().then(() => {
+        this.bgMusicPlaying = true;
+        console.log('🎵 Background music started');
+      }).catch((e) => {
+        console.log('🔇 Autoplay blocked, music will start on first interaction');
+      });
     }
   }
 
@@ -146,7 +161,8 @@ export class SoundSystem {
     const bg = this.sounds.bg;
     if (bg) {
       bg.pause();
-      bg.currentTime = 0;
+      // Don't reset currentTime - let it resume from current position
+      this.bgMusicPlaying = false;
     }
   }
 

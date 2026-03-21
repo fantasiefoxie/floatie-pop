@@ -1,32 +1,36 @@
 /**
  * COMBO SYSTEM - Tracks consecutive pops and manages combo multipliers
- * 
+ *
  * Features:
  * - Tracks consecutive pops of same floatie family
  * - Calculates combo multiplier based on combo count
+ * - Delays multiplier updates for UI animation
  * - Emits milestone events at specific combo counts
  * - Event-driven architecture (no direct state modification)
- * 
+ *
  * Lifecycle:
  * - init: Initialize system
- * - update: Not used (event-driven)
+ * - update: Track combo timeout
  * - onEvent: Handle floatiePopped events
- * 
+ *
  * Listens to:
  * - floatie:popped (from PopDetectionSystem)
- * 
+ *
  * Emits events:
- * - combo:updated (current, multiplier, lastFamily)
+ * - combo:building (immediate, combo count only)
+ * - combo:resolved (after 80ms delay, with multiplier)
  * - combo:milestoneSmall (at combo.current == 5)
  * - combo:milestoneLarge (at combo.current == 8)
  */
+
+import { TIMINGS } from '../timing.js';
 
 export class ComboSystem {
   constructor(systemManager) {
     this.systemManager = systemManager;
     this.milestoneTriggered = new Set(); // Track triggered milestones
     this.comboTimer = 0;
-    this.comboTimeout = 3000; // Combo breaks after 3 seconds without pops
+    this.comboTimeout = TIMINGS.COMBO_TIMEOUT; // Combo breaks after 3 seconds without pops
   }
 
   /**
@@ -84,9 +88,12 @@ export class ComboSystem {
    * @param {Object} gameState - Centralized game state
    */
   handleFloatiePopped(data, gameState) {
-    const { floatie, family, isRare } = data;
+    const { floatie, family, isRare, position } = data;
 
     if (!floatie || !family) return;
+
+    const actionQueue = this.systemManager.getSystem('ActionQueueSystem');
+    const priorityEvent = this.systemManager.getSystem('PriorityEventSystem');
 
     // Reset combo timer
     this.comboTimer = 0;
@@ -98,26 +105,71 @@ export class ComboSystem {
     } else {
       // Reset combo to 1 (this is the first of new family)
       gameState.combo.current = 1;
+      
+      // Clear milestone tracking on family change
+      this.milestoneTriggered.clear();
     }
 
-    // 3. Update lastFamily
+    // 2. Update lastFamily
     gameState.combo.lastFamily = family;
 
-    // 2. Update multiplier based on combo count
-    gameState.combo.multiplier = this.calculateMultiplier(gameState.combo.current);
-
-    // 4. Emit combo updated event
-    this.systemManager.emit('combo:updated', {
+    // 3. IMMEDIATE: Emit combo building (for UI animation)
+    this.systemManager.emit('combo:building', {
       current: gameState.combo.current,
-      multiplier: gameState.combo.multiplier,
-      lastFamily: gameState.combo.lastFamily,
+      lastFamily: family,
       isRare
     });
 
-    // 5. Check for milestone events
-    this.checkMilestones(gameState.combo.current, family, isRare);
+    // 4. DELAYED: Update multiplier and emit resolved
+    const newMultiplier = this.calculateMultiplier(gameState.combo.current);
+    
+    if (actionQueue) {
+      // Queue multiplier update with configured delay
+      actionQueue.enqueueAction('updateComboMultiplier', {
+        multiplier: newMultiplier,
+        current: gameState.combo.current,
+        lastFamily: family,
+        isRare
+      }, TIMINGS.COMBO_BUILD_DELAY);
+    } else {
+      // Fallback: update immediately
+      gameState.combo.multiplier = newMultiplier;
+      this.systemManager.emit('combo:resolved', {
+        current: gameState.combo.current,
+        multiplier: newMultiplier,
+        lastFamily: family,
+        isRare
+      });
+    }
 
-    console.log(`🔥 Combo: ${gameState.combo.current}x (${family}) - Multiplier: ${gameState.combo.multiplier}x`);
+    // 5. Check for milestone events (delayed slightly for dramatic effect)
+    if (gameState.combo.current === 5 && !this.milestoneTriggered.has(5)) {
+      this.milestoneTriggered.add(5);
+      
+      if (priorityEvent) {
+        priorityEvent.emitMedium('playSound', { sound: 'blue', volume: 0.3 });
+      }
+      
+      this.systemManager.emit('combo:milestoneSmall', {
+        comboCount: 5,
+        family,
+        isRare
+      });
+    } else if (gameState.combo.current === 8 && !this.milestoneTriggered.has(8)) {
+      this.milestoneTriggered.add(8);
+      
+      if (priorityEvent) {
+        priorityEvent.emitMedium('playSound', { sound: 'maw', volume: 0.4 });
+      }
+      
+      this.systemManager.emit('combo:milestoneLarge', {
+        comboCount: 8,
+        family,
+        isRare
+      });
+    }
+
+    console.log(`🔥 Combo: ${gameState.combo.current}x (${family}) - Building...`);
   }
 
   /**

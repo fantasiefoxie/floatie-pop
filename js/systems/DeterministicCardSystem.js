@@ -18,8 +18,10 @@
  * 
  * Emits events:
  * - card:generated (card)
- * - card:ready (card)
+ * - card:revealed (card)
  */
+
+import { TIMINGS } from '../timing.js';
 
 /**
  * Seeded Random Number Generator for deterministic card generation
@@ -149,12 +151,18 @@ export class DeterministicCardSystem {
    * @param {Object} gameState - Centralized game state
    */
   handleFloatiePopped(data, gameState) {
+    const actionQueue = this.systemManager.getSystem('ActionQueueSystem');
+    if (!actionQueue) return;
+
     // Increment pop counter
     gameState.cards.popCounter++;
 
-    // Check if we should generate a card
-    if (gameState.cards.popCounter % this.popInterval === 0) {
-      this.generateCard(gameState);
+    // Check if we should generate a card (every 5 pops)
+    if (gameState.cards.popCounter % 5 === 0) {
+      // Queue card generation with configured delay
+      actionQueue.enqueueAction('generateCard', {
+        popCount: gameState.cards.popCounter
+      }, TIMINGS.CARD_TRIGGER_DELAY);
     }
   }
 
@@ -177,16 +185,46 @@ export class DeterministicCardSystem {
       rarity
     };
 
-    // Add to deck
+    // Add to deck (temporary holding)
     gameState.cards.deck.push(card);
 
-    // Emit card generated event
+    // 1. IMMEDIATE: Emit card generated (for visual reveal)
     this.systemManager.emit('card:generated', card);
 
-    // Emit card ready event for rendering/interaction
-    this.systemManager.emit('card:ready', card);
+    console.log(`🎴 Card Generated: ${card.type} (${card.rarity}) - Revealing...`);
 
-    console.log(`🎴 Card Generated: ${card.type} (${card.rarity})`);
+    // 2. DELAYED: Move card to hand and emit revealed
+    const actionQueue = this.systemManager.getSystem('ActionQueueSystem');
+    if (actionQueue) {
+      actionQueue.enqueueAction('revealCard', {
+        card
+      }, TIMINGS.CARD_REVEAL_DELAY);
+    } else {
+      // Fallback: reveal immediately
+      this.revealCard(card, gameState);
+    }
+  }
+
+  /**
+   * Reveal a card (move to hand after delay)
+   * @param {Object} card - Card object
+   * @param {Object} gameState - Centralized game state
+   */
+  revealCard(card, gameState) {
+    // Remove from deck
+    const deckIndex = gameState.cards.deck.findIndex(c => c.id === card.id);
+    if (deckIndex !== -1) {
+      gameState.cards.deck.splice(deckIndex, 1);
+    }
+
+    // Add to hand
+    gameState.cards.hand.push(card);
+
+    // Emit card revealed event
+    this.systemManager.emit('card:revealed', card);
+    this.systemManager.emit('card:addedToHand', card);
+
+    console.log(`✨ Card Revealed: ${card.type} (${card.rarity}) - Added to hand`);
   }
 
   /**

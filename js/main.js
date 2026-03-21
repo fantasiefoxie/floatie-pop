@@ -8,6 +8,7 @@
 // Core Imports
 import { state } from './state.js';
 import { systemManager } from './systemManager.js';
+import { TIMINGS } from './timing.js';
 
 // Phase 1: CONTENT
 import { ContentSystem } from './systems/ContentSystem.js';
@@ -19,7 +20,16 @@ import { MobileUXSystem } from './systems/MobileUXSystem.js';
 // Phase 3: FLOW
 import { GameFlowSystem } from './systems/GameFlowSystem.js';
 
-// Phase 4: GAMEPLAY
+// Phase 4: ACTION QUEUE (processes before gameplay)
+import { ActionQueueSystem } from './systems/ActionQueueSystem.js';
+
+// Phase 4b: PRIORITY EVENTS (sequences events by importance)
+import { PriorityEventSystem } from './systems/PriorityEventSystem.js';
+
+// Phase 4c: FEEDBACK (displays gameplay messages)
+import { FeedbackSystem } from './systems/FeedbackSystem.js';
+
+// Phase 5: GAMEPLAY
 import { RunManagerSystem } from './systems/RunManagerSystem.js';
 import { FloatieSpawnSystem } from './systems/FloatieSpawnSystem.js';
 import { PopDetectionSystem } from './systems/PopDetectionSystem.js';
@@ -61,7 +71,16 @@ window.addEventListener('load', () => {
         
         // Flow
         { phase: 'flow', name: 'GameFlowSystem', instance: new GameFlowSystem(systemManager) },
-        
+
+        // Action Queue
+        { phase: 'gameplay', name: 'ActionQueueSystem', instance: new ActionQueueSystem(systemManager) },
+
+        // Priority Events
+        { phase: 'gameplay', name: 'PriorityEventSystem', instance: new PriorityEventSystem(systemManager) },
+
+        // Feedback
+        { phase: 'gameplay', name: 'FeedbackSystem', instance: new FeedbackSystem(systemManager) },
+
         // Gameplay
         { phase: 'gameplay', name: 'RunManagerSystem', instance: new RunManagerSystem(systemManager) },
         { phase: 'gameplay', name: 'FloatieSpawnSystem', instance: new FloatieSpawnSystem(systemManager) },

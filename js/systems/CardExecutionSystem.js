@@ -64,43 +64,13 @@ export class CardExecutionSystem {
     const gameState = this.systemManager.gameState;
     if (!gameState || gameState.paused || gameState.gameOver) return;
 
-    if (eventName === 'card:generated') {
-      this.handleCardGenerated(data, gameState);
+    if (eventName === 'card:revealed') {
+      // Card is already added to hand by DeterministicCardSystem.revealCard()
+      // Just emit notification for UI
+      this.systemManager.emit('card:addedToHand', data);
     } else if (eventName === 'card:activated') {
       this.handleCardActivated(data, gameState);
     }
-  }
-
-  /**
-   * Handle card generated event - move from deck to hand
-   * @param {Object} card - Generated card
-   * @param {Object} gameState - Centralized game state
-   */
-  handleCardGenerated(card, gameState) {
-    // Check hand size limit
-    if (gameState.cards.hand.length >= this.maxHandSize) {
-      console.log(`📋 Hand full (${this.maxHandSize}), discarding card: ${card.type}`);
-      // Remove from deck (card is discarded)
-      const deckIndex = gameState.cards.deck.findIndex(c => c.id === card.id);
-      if (deckIndex !== -1) {
-        gameState.cards.deck.splice(deckIndex, 1);
-      }
-      return;
-    }
-
-    // Remove from deck
-    const deckIndex = gameState.cards.deck.findIndex(c => c.id === card.id);
-    if (deckIndex !== -1) {
-      gameState.cards.deck.splice(deckIndex, 1);
-    }
-
-    // Add to hand
-    gameState.cards.hand.push(card);
-
-    // Emit card added to hand event
-    this.systemManager.emit('card:addedToHand', card);
-
-    console.log(`🎴 Card added to hand: ${card.type} (${card.rarity})`);
   }
 
   /**

@@ -254,6 +254,11 @@ export class FloatieSpawnSystem {
       user-select: none;
       touch-action: none;
       transition: none;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       ${isRare ? 'filter: brightness(1.5) drop-shadow(0 0 10px gold);' : ''}
     `;
 

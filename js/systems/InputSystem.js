@@ -62,6 +62,19 @@ export class InputSystem {
       return;
     }
 
+    // Initialize input lock state
+    if (!gameState.input) {
+      gameState.input = {
+        pointerDown: false,
+        pointerPosition: { x: 0, y: 0 },
+        chainSelection: [],
+        activeFamily: null,
+        locked: false
+      };
+    } else {
+      gameState.input.locked = false;
+    }
+
     // Prevent default touch behaviors
     this.playArea.style.touchAction = 'none';
 
@@ -81,6 +94,12 @@ export class InputSystem {
    * Handle pointer down - start chain or tap
    */
   handlePointerDown(e, gameState) {
+    // Check input lock
+    if (gameState.input.locked) {
+      console.log('🔒 Input locked - ignoring pointer down');
+      return;
+    }
+
     if (gameState.paused || gameState.gameOver) return;
 
     e.preventDefault();
@@ -120,6 +139,9 @@ export class InputSystem {
    * Handle pointer move - extend chain
    */
   handlePointerMove(e, gameState) {
+    // Check input lock
+    if (gameState.input.locked) return;
+
     if (!this.isPointerDown || gameState.paused || gameState.gameOver) return;
 
     e.preventDefault();
@@ -169,6 +191,7 @@ export class InputSystem {
       this.lastTappedFloatie = null;
       gameState.input.chainSelection = [];
       gameState.input.activeFamily = null;
+      this.clearChainVisuals();
       return;
     }
 
@@ -186,6 +209,7 @@ export class InputSystem {
     this.lastTappedFloatie = null;
     gameState.input.chainSelection = [];
     gameState.input.activeFamily = null;
+    this.clearChainVisuals();
   }
 
   /**
@@ -272,6 +296,9 @@ export class InputSystem {
     gameState.input.chainSelection = [floatie];
     gameState.input.activeFamily = this.activeFamily;
 
+    // Add visual indicator
+    this.updateChainVisuals();
+
     // Emit tap event
     this.systemManager.emit('floatie:tap', {
       floatie,
@@ -313,6 +340,9 @@ export class InputSystem {
     // Update gameState
     gameState.input.chainSelection = [...this.chainSelection];
 
+    // Update visual indicators
+    this.updateChainVisuals();
+
     // Emit chain extended event
     this.systemManager.emit('chain:extended', {
       chainSelection: [...this.chainSelection],
@@ -322,11 +352,38 @@ export class InputSystem {
   }
 
   /**
+   * Update visual indicators for chain selection
+   */
+  updateChainVisuals() {
+    // Remove chain-selected class from all floaties
+    document.querySelectorAll('.float.chain-selected').forEach(el => {
+      el.classList.remove('chain-selected');
+    });
+
+    // Add chain-selected class to current chain floaties
+    for (const floatie of this.chainSelection) {
+      if (floatie && floatie.el) {
+        floatie.el.classList.add('chain-selected');
+      }
+    }
+  }
+
+  /**
+   * Clear chain visuals
+   */
+  clearChainVisuals() {
+    document.querySelectorAll('.float.chain-selected').forEach(el => {
+      el.classList.remove('chain-selected');
+    });
+  }
+
+  /**
    * Get floatie at point with 48px minimum touch target
    */
   getFloatieAtPoint(x, y, gameState) {
     let closestFloatie = null;
-    let closestDistance = this.minTouchSize / 2; // 24px radius
+    let closestDistance = Infinity;
+    const maxDetectionDistance = 60; // Increased hitbox radius
 
     for (const floatie of gameState.floats) {
       if (!floatie.isActive || !floatie.el) continue;
@@ -340,10 +397,11 @@ export class InputSystem {
         Math.pow(y - centerY, 2)
       );
 
-      // Use larger of visual radius or minimum touch size
+      // Use larger interaction radius for better hit detection
       const interactionRadius = Math.max(
-        floatie.interactionRadius || 30,
-        this.minTouchSize / 2
+        floatie.interactionRadius || 40,
+        this.minTouchSize / 2,
+        30
       );
 
       if (distance <= interactionRadius && distance < closestDistance) {

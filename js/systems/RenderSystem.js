@@ -21,6 +21,8 @@
  * Does NOT modify gameState
  */
 
+import { TIMINGS } from '../timing.js';
+
 export class RenderSystem {
   constructor(systemManager) {
     this.systemManager = systemManager;
@@ -100,6 +102,15 @@ export class RenderSystem {
       this.handleSpawnParticles(data, gameState);
     });
 
+    this.systemManager.on('showMessage', (data) => {
+      this.handleShowMessage(data, gameState);
+    });
+
+    // Listen for priority score events
+    this.systemManager.on('score:updated', (data) => {
+      // Score text will be spawned via ActionQueue
+    });
+
     console.log('✅ RenderSystem initialized');
   }
 
@@ -177,8 +188,22 @@ export class RenderSystem {
     for (let i = floatingText.length - 1; i >= 0; i--) {
       const text = floatingText[i];
       text.life -= deltaTime;
-      text.y -= 1; // Move upward
-      text.alpha = Math.max(0, text.life / 1000); // Fade out
+      text.y -= 2; // Move upward faster
+      
+      // Calculate progress (0 to 1)
+      const progress = 1 - (text.life / 1000);
+      
+      // Scale animation: grows then shrinks (pop effect)
+      if (progress < 0.3) {
+        // Grow phase (first 30%)
+        text.scale = 0.8 + (progress / 0.3) * 0.4; // 0.8 → 1.2
+      } else {
+        // Shrink phase (remaining 70%)
+        text.scale = 1.2 - ((progress - 0.3) / 0.7) * 0.7; // 1.2 → 0.5
+      }
+      
+      // Fade out in last 30%
+      text.alpha = text.life > 300 ? 1 : text.life / 300;
 
       if (text.life <= 0) {
         floatingText.splice(i, 1);
@@ -238,6 +263,9 @@ export class RenderSystem {
     // Draw floating text (dynamic UI)
     this.drawFloatingText(gameState);
 
+    // Draw feedback messages
+    this.drawFeedbackMessages(gameState);
+
     // Draw combo animation
     this.drawComboEffect(gameState);
 
@@ -273,28 +301,28 @@ export class RenderSystem {
     if (!gameState.render.floatingText) return;
 
     for (const text of gameState.render.floatingText) {
-      // Animate scale
-      const scale = 0.8 + (1 - text.alpha) * 0.4;
-      
+      // Use animated scale
+      const scale = text.scale || 1;
+
       this.ctx.save();
       this.ctx.translate(text.x, text.y);
       this.ctx.scale(scale, scale);
-      
-      this.ctx.font = 'bold 28px Arial';
+
+      this.ctx.font = 'bold 32px Arial';
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'middle';
-      
+
       // Glow effect
       this.ctx.shadowColor = 'rgba(0, 255, 136, 0.8)';
-      this.ctx.shadowBlur = 15;
+      this.ctx.shadowBlur = 20;
       this.ctx.fillStyle = `rgba(0, 255, 136, ${text.alpha})`;
-      
+
       // Draw text with outline
       this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-      this.ctx.lineWidth = 3;
+      this.ctx.lineWidth = 4;
       this.ctx.strokeText(`+${text.value}`, 0, 0);
       this.ctx.fillText(`+${text.value}`, 0, 0);
-      
+
       this.ctx.restore();
       this.ctx.shadowBlur = 0;
     }
@@ -312,6 +340,97 @@ export class RenderSystem {
     if (comboEl) {
       comboEl.style.transform = `scale(${pulse})`;
       comboEl.style.textShadow = `0 0 ${20 * pulse}px rgba(255, 215, 0, ${pulse})`;
+    }
+  }
+
+  /**
+   * Draw feedback messages
+   * @param {Object} gameState - Centralized game state
+   */
+  drawFeedbackMessages(gameState) {
+    if (!gameState.feedback || !gameState.feedback.messages) return;
+
+    for (const msg of gameState.feedback.messages) {
+      this.drawFeedbackMessage(msg);
+    }
+  }
+
+  /**
+   * Draw a single feedback message
+   * @param {Object} msg - Message object
+   */
+  drawFeedbackMessage(msg) {
+    const { text, position, alpha, scale, color } = msg;
+
+    this.ctx.save();
+    this.ctx.translate(position.x, position.y);
+    this.ctx.scale(scale, scale);
+
+    // Font settings
+    this.ctx.font = 'bold 28px Arial';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+
+    // Glow effect
+    this.ctx.shadowColor = color || '#ffffff';
+    this.ctx.shadowBlur = 20;
+    this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+
+    // Draw text with outline
+    this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+    this.ctx.lineWidth = 4;
+    this.ctx.strokeText(text, 0, 0);
+    this.ctx.fillText(text, 0, 0);
+
+    this.ctx.restore();
+    this.ctx.shadowBlur = 0;
+  }
+
+  /**
+   * Handle show message event
+   * @param {Object} data - Event data
+   * @param {Object} gameState - Centralized game state
+   */
+  handleShowMessage(data, gameState) {
+    const { text, type, position, multiplier, isRare, rarity, size, reason } = data;
+
+    // Default position (center of screen if not provided)
+    const pos = position || {
+      x: this.canvas.width / 2,
+      y: this.canvas.height / 2
+    };
+
+    // Build options
+    const options = {
+      life: TIMINGS.FEEDBACK_DEFAULT_LIFE,
+      floatSpeed: TIMINGS.FEEDBACK_FLOAT_SPEED,
+      scale: 1
+    };
+
+    // Customize based on type
+    if (type === 'combo') {
+      options.color = isRare ? '#ffd700' : (multiplier >= 4 ? '#ff69b4' : '#00ff88');
+      options.scale = multiplier >= 5 ? 1.5 : 1.2;
+      options.life = multiplier >= 5 ? TIMINGS.FEEDBACK_COMBO_LIFE : TIMINGS.FEEDBACK_DEFAULT_LIFE;
+    } else if (type === 'card') {
+      options.color = rarity === 'legendary' ? '#ffd700' : (rarity === 'rare' ? '#4169e1' : '#888');
+      options.scale = 1.3;
+    } else if (type === 'milestone') {
+      options.color = size === 'large' ? '#ff4444' : '#ff69b4';
+      options.scale = size === 'large' ? 2 : 1.5;
+      options.life = size === 'large' ? TIMINGS.FEEDBACK_MILESTONE_LIFE : TIMINGS.FEEDBACK_COMBO_LIFE;
+      options.floatSpeed = 2;
+    } else if (type === 'warning') {
+      options.color = '#ff4444';
+      options.scale = 1.8;
+      options.life = TIMINGS.FEEDBACK_WARNING_LIFE;
+      options.floatSpeed = 1;
+    }
+
+    // Show message via FeedbackSystem
+    const feedbackSystem = this.systemManager.getSystem('FeedbackSystem');
+    if (feedbackSystem) {
+      feedbackSystem.showMessage(text, pos, type, options);
     }
   }
 
@@ -475,7 +594,8 @@ export class RenderSystem {
       y: position.y,
       value,
       life: 1000, // 1 second
-      alpha: 1
+      alpha: 1,
+      scale: 0.8 // Start small, will grow then shrink
     });
   }
 
